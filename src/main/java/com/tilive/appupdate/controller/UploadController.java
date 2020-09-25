@@ -4,16 +4,16 @@ import com.tilive.appupdate.bean.AppInfo;
 import com.tilive.appupdate.config.ServerConfig;
 import com.tilive.appupdate.service.AppService;
 import com.tilive.appupdate.utils.ApkUtil;
+import com.tilive.appupdate.utils.VersionUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Api(tags = "应用上传管理")
 @Controller
 public class UploadController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
@@ -36,12 +37,14 @@ public class UploadController {
     @Autowired
     private AppService appService;
 
+    @ApiOperation(value = "打开应用上传页面")
     @GetMapping("/upload")
     public String upload(Model model) {
-        model.addAttribute("updateLog", "填写更新日志");
+        model.addAttribute("updateLog", "请填写应用版本更新日志");
         return "upload";
     }
 
+    @ApiOperation(value = "上传应用")
     @PostMapping("/upload")
     @ResponseBody
     public Map<String, String> upload(@RequestParam("file") MultipartFile file,
@@ -71,10 +74,38 @@ public class UploadController {
         return resMap;
     }
 
+    @ApiOperation(value = "获取应用版本列表")
     @GetMapping("/getAppList")
     public String getAppList(Model model) {
         model.addAttribute("appList", appService.getAppInfoList());
         return "appList";
+    }
+
+    @ApiOperation(value = "获取最新版本")
+    @RequestMapping("/updateApp/{version:.+}")
+    @ResponseBody
+    public Map<String, Object> getLastApp(@PathVariable String version) {
+        Map<String, Object> lastAppMap = new HashMap<>();
+        AppInfo appInfo = appService.getLastAppInfo();
+        if (appInfo != null) {
+            int compareVersion = VersionUtil.compareVersion(version, appInfo.getVersionName());
+            lastAppMap.put("appVersion", appInfo.getVersionName());
+            lastAppMap.put("versionCode", appInfo.getVersionCode());
+            lastAppMap.put("updateTime", appInfo.getUpdateTime());
+            if (compareVersion == -1) {//当前版本可更新
+                lastAppMap.put("hasNewVersion", true);
+                lastAppMap.put("appUpdateLog", appInfo.getUpdateContent());
+                lastAppMap.put("downloadUrl", appInfo.getDownloadUrl());
+                lastAppMap.put("apkSize", appInfo.getAppSize());
+            } else {
+                lastAppMap.put("hasNewVersion", false);
+                lastAppMap.put("appUpdateLog", "已经是最新版本了");
+            }
+        } else {
+            lastAppMap.put("hasNewVersion", false);
+            lastAppMap.put("appUpdateLog", "还没上传新版应用");
+        }
+        return lastAppMap;
     }
 
 }

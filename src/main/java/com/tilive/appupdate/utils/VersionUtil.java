@@ -12,35 +12,32 @@ public class VersionUtil {
      * @return 0代表相等，1代表v1大，-1代表v2大
      */
     public static int compareVersion(String v1, String v2) {
-        if (v1.equals(v2)) {
-            return 0;
-        }
-        String[] version1Array = v1.substring(1).split("[._]");
-        String[] version2Array = v2.substring(1).split("[._]");
-        int index = 0;
-        int minLen = Math.min(version1Array.length, version2Array.length);
-        long diff = 0;
+        Long versionCode1 = getVCode(v1);
+        Long versionCode2 = getVCode(v2);
+        return Long.compare(versionCode1, versionCode2);
+    }
 
-        while (index < minLen
-                && (diff = Long.parseLong(version1Array[index])
-                - Long.parseLong(version2Array[index])) == 0) {
-            index++;
+    public static Long getVCode(String versionName) {
+        if (versionName == null || versionName.isEmpty()) return 0L;
+        String[] numbers = versionName.split("\\.");
+        Long versioncode = -1L;
+        if (numbers == null || (numbers.length != 2 && numbers.length != 3 && numbers.length != 4)) {
+            return 0L;
         }
-        if (diff == 0) {
-            for (int i = index; i < version1Array.length; i++) {
-                if (Long.parseLong(version1Array[i]) > 0) {
-                    return 1;
-                }
-            }
-
-            for (int i = index; i < version2Array.length; i++) {
-                if (Long.parseLong(version2Array[i]) > 0) {
-                    return -1;
-                }
-            }
-            return 0;
-        } else {
-            return diff > 0 ? 1 : -1;
+        if (numbers.length == 4) {
+            versioncode = Long.parseLong(numbers[0]) * 1000000 + Long.parseLong(numbers[1]) * 10000
+                    + Long.parseLong(numbers[2]) * 100 + Long.parseLong(numbers[3]);
         }
+        if (numbers.length == 3) {
+            versioncode = Long.parseLong(numbers[0]) * 1000000 + Long.parseLong(numbers[1]) * 10000
+                    + Long.parseLong(numbers[2]) * 1000;
+        }
+        if (numbers.length == 2) {
+            versioncode = Long.parseLong(numbers[0]) * 1000000 + Long.parseLong(numbers[1]) * 10000;
+        }
+        if (versioncode == -1) {
+            return 0L;
+        }
+        return versioncode;
     }
 }

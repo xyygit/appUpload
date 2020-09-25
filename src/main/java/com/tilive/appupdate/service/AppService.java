@@ -8,4 +8,6 @@ public interface AppService {
     void save(AppInfo appInfo);
 
     List<AppInfo> getAppInfoList();
+
+    AppInfo getLastAppInfo();
 }

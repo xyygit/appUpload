@@ -7,11 +7,6 @@ server:
   tomcat.uri-encoding: UTF-8
   session-timeout: 30
 
-#配置属性
-author:
-  name: 夏亚运
-  csdnUrl: https://blog.csdn.net/qq_40147863/article/details/841944931
-
 #spring相关配置
 spring:
   thymeleaf:

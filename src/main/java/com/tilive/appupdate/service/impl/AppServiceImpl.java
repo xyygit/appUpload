@@ -22,4 +22,13 @@ public class AppServiceImpl implements AppService {
     public List<AppInfo> getAppInfoList() {
         return appVersionDao.findAll();
     }
+
+    @Override
+    public AppInfo getLastAppInfo() {
+        List<AppInfo> appInfoList = getAppInfoList();
+        if (appInfoList != null && appInfoList.size() > 0) {
+            return appInfoList.get(appInfoList.size() - 1);
+        }
+        return null;
+    }
 }
