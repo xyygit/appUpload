@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传</title>
+</head>
+<body>
+    <form method="post" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="file"><br>
+        更新日志：<input type="text" th:value="${updateLog}" name="updateLog"><br/>
+        <input type="submit" value="提交">
+    </form>
+</body>
+</html>
